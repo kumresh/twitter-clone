@@ -1,6 +1,22 @@
-export default function Home() {
+import MainPage from "@/components/MainPage";
+import LeftSideBar from '@/components/LeftSideBar';
+import RightSideBar from '@/components/RightSideBar';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+  if(!session){
+    redirect("/login")
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-    </main>
+    <>
+      <LeftSideBar />
+      <MainPage />
+      <RightSideBar />
+    </>
+
   )
 }

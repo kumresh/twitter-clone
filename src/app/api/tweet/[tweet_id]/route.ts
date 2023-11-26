@@ -18,8 +18,18 @@ export async function GET(_:NextRequest, { params }: { params: { tweet_id: strin
         id:true,
         content:true,
         imageUrl:true,
+        reply:{
+          select:{
+            createdAt:true,
+            content:true,
+            imageUrl:true,
+            tweet:true,
+            user:true
+          }
+        },
         user:{
             select:{
+              id:true,
                 name:true,
                 username:true,
                 email:true,
@@ -32,7 +42,7 @@ export async function GET(_:NextRequest, { params }: { params: { tweet_id: strin
             id:true
           }
         },
-        retweetBy:{
+        retweet:{
             select:{
                 user:{
                     select:{

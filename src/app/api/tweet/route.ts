@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
         const { content, imageUrl } = await req.json();
 
         const session = await getServerSession(authOptions);
-        const tweetBy = session?.user?.id || "655f4b8592820640682194ef";
+        const tweetBy = session?.user?.id;
         if (!tweetBy){
             return ApiUtils.sendErrorResponse('Invalid Credential.', 401);
         }
@@ -42,35 +42,46 @@ export async function POST(req: NextRequest) {
 export async function GET() {
     let errorMessage = 'Something went wrong';
     try {
-        // const session = await getServerSession(authOptions);
-        // if (!session){
-        //     return ApiUtils.sendErrorResponse('Invalid Credential.', 401)
-        // }
+        const session = await getServerSession(authOptions);
+        if (!session){
+            return ApiUtils.sendErrorResponse('Invalid Credential.', 401)
+        }
 
         const tweets = await prisma.tweet.findMany({
             select: {
                 id:true,
                 content:true,
+                createdAt:true,
+                imageUrl:true,
                 user: {
                     select:{
                         id:true,
                         name:true,
                         username:true,
-                        profilePic:true,
-                        email:true,
-                        location:true,
-                        dob:true,
-                        createdAt:true
+                        profilePic:true
                     }
                 },
-                comments: true,
                 hashTag: true,
-                retweetBy: true,
-                reply: true,
-                bookmark: true,
-                like:{
+                retweet: {
                     select:{
                         id:true
+                    }
+                },
+                reply: {
+                   select:{
+                    id:true
+                   }
+                },
+                bookmark: {
+                    select:{
+                        id:true,
+                        user:true
+                    }
+                },
+                like:{
+                    select:{
+                        id:true,
+                        user:true
                     }
                 },
             },

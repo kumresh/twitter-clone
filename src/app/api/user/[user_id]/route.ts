@@ -2,10 +2,6 @@ import ApiUtils from "@/lib/api-utils";
 import prisma from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-interface IUserId{
-    user_id: string;
-}
-
 export async function GET(_:NextRequest, { params }: { params: { user_id: string } }) {
     let errorMessage = 'Something went wrong';
 
@@ -23,28 +19,11 @@ export async function GET(_:NextRequest, { params }: { params: { user_id: string
                 createdAt:true,
                 dob:true,
                 location:true,
-                followers:{
-                    select:{
-                        follower:{
-                            select:{
-                                name:true,
-                                username:true,
-                                profilePic:true
-                            }
-                        }
-                    }
-                },
-                following:{
-                    select:{
-                        following:{
-                            select:{
-                                name:true,
-                                username:true,
-                                profilePic:true
-                            }
-                        }
-                    }
-                }
+                profilePic:true,
+                like:true,
+                tweets:true,
+                followers:true,
+                following:true
             }
         });
 

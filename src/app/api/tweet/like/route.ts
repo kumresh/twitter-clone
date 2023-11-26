@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
         const {tweet_id} = await req.json();
 
         const session = await getServerSession(authOptions);
-        const userId = session?.user?.id || "655f4cbb92820640682194f0";
+        const userId = session?.user?.id;
         if (!userId) {
             return ApiUtils.sendErrorResponse('Unauthenticated user', 401);
         }

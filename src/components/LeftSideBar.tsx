@@ -5,10 +5,13 @@ import { FaHome, FaBookmark, FaUser } from "react-icons/fa";
 import { IoIosSearch } from "react-icons/io";
 import { GoBellFill } from "react-icons/go";
 import { RiMessage2Fill } from "react-icons/ri";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import LogoutBtn from "./LogoutBtn";
 
+export default async function LeftSideBar() {
+    const session = await getServerSession(authOptions);
 
-
-export default function LeftSideBar() {
     const NAVIGATION_ITEMS = [
         {
             title: "Twitter",
@@ -22,16 +25,9 @@ export default function LeftSideBar() {
             title: "Explore",
             icon: IoIosSearch,
         },
+        
         {
-            title: "Notifications",
-            icon: GoBellFill,
-        },
-        {
-            title: "Messages",
-            icon: RiMessage2Fill,
-        },
-        {
-            title: "Bookmarks",
+            title: "Bookmark",
             icon: FaBookmark,
         },
         {
@@ -44,12 +40,12 @@ export default function LeftSideBar() {
             <div className="flex flex-col items-stretch h-full space-y-4 mt-4">
                 {NAVIGATION_ITEMS.map((item) => (
                     <Link
-                        className="hover:bg-white/10 text-2xl transition duration-200 flex items-center justify-start w-fit space-x-4 rounded-full p-3"
+                        className="hover:bg-slate-950 text-xl transition duration-200 flex items-center justify-start w-fit space-x-4 rounded-full p-3"
                         href={
                             item.title.toLocaleLowerCase() === "home"
                                 ? "/"
                                 : item.title.toLocaleLowerCase() === "profile"
-                                    ? "#"
+                                    ? `/${session?.user.id}`
                                     : `/${item.title.toLowerCase()}`
                         }
                         key={item.title}
@@ -60,7 +56,13 @@ export default function LeftSideBar() {
                         {item.title !== "Twitter" && <div className="hidden lg:block">{item.title}</div>}
                     </Link>
                 ))}
+                {
+                    session && (
+                        <LogoutBtn/>
+                    )
+                }
             </div>
+
         </section>
     )
 }

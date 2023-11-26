@@ -10,31 +10,34 @@ export async function POST(req: NextRequest) {
       const { followerId } = await req.json(); 
       // Assuming you have the follower's ID from your authentication
       const session = await getServerSession(authOptions);
-      const userId = session?.user?.id || "655f4cbb92820640682194f0";
+      const userId = session?.user?.id;
+      
       
       if (!userId) {
         return ApiUtils.sendErrorResponse('Unauthorize user', 405);
       }
 
-      // Find the Follow record for the follower and following users
-      const existingFollow = await prisma.follow.findFirst({
-        where: {
+      const isFollowing = await prisma.follow.findFirst({
+        where:{
           followerId: followerId,
-          followingId: userId,
-        },
+          followingId: userId
+        } 
       });
-  
-      if (existingFollow) {
-         // User is already following, so unfollow
+      
+      if(isFollowing){
         await prisma.follow.delete({
-          where: { id: existingFollow.id },
+          where:{
+            id:isFollowing.id
+          }
         });
-        return ApiUtils.sendSuccessResponse('unfollowed');
+        return ApiUtils.sendSuccessResponse("Unfollow");
       }else{
         await prisma.follow.create({
           data: {
-            followerId: followerId,
-            followingId: userId,
+            follower: {connect:{id: followerId}},
+            following: {
+              connect:{id: userId}
+            },
           },
         });
         return ApiUtils.sendSuccessResponse("follow");
@@ -51,3 +54,43 @@ export async function POST(req: NextRequest) {
     }
     return ApiUtils.sendErrorResponse(errorMessage);
   }
+
+export async function GET(_:NextRequest) {
+    let errorMessage = 'Something went wrong';
+
+    try {
+
+        const user = await prisma.user.findUnique({
+            where: {
+                id:"655f4b8592820640682194ef"
+            },
+            select:{
+                name:true,
+                username:true,
+                email:true,
+                createdAt:true,
+                dob:true,
+                location:true,
+                profilePic:true,
+                like:true,
+                tweets:true,
+                followers:true,
+                following:true
+            }
+        });
+
+        if (!user){
+            return  ApiUtils.sendErrorResponse('Unable to fetch account', 403)
+        }
+        return ApiUtils.sendSuccessResponse({user: user});
+    } catch (error) {
+        if (typeof error === 'string') {
+            errorMessage = error;
+        } else if (error instanceof Error) {
+            errorMessage = error.message;
+        } else {
+            console.warn(error);
+        }
+    }
+    return ApiUtils.sendErrorResponse(errorMessage);
+}
